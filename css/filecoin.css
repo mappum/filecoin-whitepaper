@@ -27,6 +27,11 @@ body {
   text-decoration: underline;
 }
 
+.sidebar li.active > a {
+  color: #333;
+  font-weight: bold;
+}
+
 .sidebar li > ul {
   margin-left: 32px;
 }
