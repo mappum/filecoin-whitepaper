@@ -42,15 +42,15 @@ body {
   padding-left: 100px;
   border-left: 1px solid #f2f2f2;
   position: absolute;
-  left: 320px;
+  left: 280px;
   width: 720px;
   line-height: 1.5;
 }
 
 .content .row {
-  margin-bottom: 64px;
+  margin-bottom: 32px;
+  padding-top: 32px;
   border-top: 1px solid #f0f0f0;
-  padding-top: 64px;
 }
 .content .row:nth-child(1) {
   border: none;
