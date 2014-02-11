@@ -49,6 +49,12 @@ body {
 
 .content .row {
   margin-bottom: 64px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 64px;
+}
+.content .row:nth-child(1) {
+  border: none;
+  padding-top: 0;
 }
 
 .content h2, .content h3 {
