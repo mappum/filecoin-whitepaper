@@ -19,8 +19,9 @@
         <a href="#mining">Mining</a></a>
         <ul class="nav">
           <li><a href="#mining-overview">Overview</a></li>
-          <li><a href="#mining-workhash">Work Hash</a></li>
-          <li><a href="#mining-chunkhash">Chunk Hash</a></li>
+          <li><a href="#mining-inventorytree">Inventory Tree</a></li>
+          <li><a href="#mining-algorithm">Algorithm</a></li>
+          <li><a href="#mining-difficulty">Difficulty</a></li>
           <li><a href="#mining-">Attacks</a></li>
         </ul>
       </li>
@@ -38,26 +39,39 @@
       <h2 id="intro">Introduction</h2>
       <p>This whitepaper will cover the entire architecture of the Filecoin system. Beware: this project is still in the design phase, so everything is subject to change.</p>
       <p>Please leave any comments or suggestions on the <a href="https://github.com/mappum/filecoin-whitepaper/issues">Github issue page</a>.</p>
+      <p>Filecoin is based on a Bitcoin-like blockchain to keep track of the currency and to index the files being stored by users, as well as a peer-to-peer network used to locate and download files. There are various expected use cases, including cloud storage of personal files (like Dropbox), and highly scalable storage and content delivery (like Amazon S3).</p>
     </div>
     <div class="row">
       <h2 id="mining">Mining</h2>
-      <p>Ut at scelerisque nisi, at ullamcorper enim. Aenean bibendum interdum massa. Cras ac lacinia neque. Integer sapien ante, posuere sit amet leo ut, tempus feugiat quam.</p>
-
       <h3 id="mining-overview">Overview</h3>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut id fermentum mi, convallis congue velit. Phasellus facilisis massa non nisi pulvinar, sit amet consequat velit accumsan. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc ultricies facilisis nisl, quis tincidunt lacus semper a.</p>
-      <p>Donec quis diam non ipsum congue tincidunt. Aliquam in urna quis nulla tincidunt ornare sed in velit. Quisque sagittis nec nunc eu rutrum. Cras eu volutpat metus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nullam nec sollicitudin lacus. Nulla vulputate, nulla ut faucibus placerat, diam purus tristique nibh, non ullamcorper lorem metus sed nibh. Nullam sagittis mauris id orci vestibulum, faucibus pellentesque nulla iaculis. Cras sed convallis metus, eu suscipit tellus. Sed imperdiet, mauris id viverra mattis, augue nisi mattis leo, vulputate facilisis elit libero vitae augue.</p>
+      <p>All current cryptocurrencies require CPU-based work when generating new blocks. Filecoin uses a similar Hashcash-like algorithm, but instead causes hard drive random access reads to be the bottleneck. The files used in the mining process are owned by other users, so miners are not only securing the network but also providing a file storage service. The amount of storage miners provide linearly scales their expected rewards.</p>
+      <p>By the nature of this design, Filecoin is ASIC-proof (helping keep mining power decentralized), less power is consumed than CPU mining, and the resources used are not wasted since they directly provide a service.</p>
 
-      <h3 id="mining-workhash">Work Hash</h3>
-      <p>Cras et nisi tincidunt, feugiat elit at, pellentesque risus. Aliquam adipiscing tincidunt ante a facilisis. Nulla tristique adipiscing orci et feugiat. Sed tempus justo eget cursus condimentum. Nam venenatis nulla id mauris auctor fringilla. Donec pulvinar vehicula tellus. Cras blandit placerat turpis vitae ornare.</p>
-      <p>Morbi ullamcorper nulla ligula, ut pretium felis euismod in. Integer arcu turpis, sodales vel condimentum vitae, congue ac ipsum. Sed sit amet ipsum laoreet, pretium est at, porttitor velit. Mauris rhoncus feugiat nulla quis vehicula. Vivamus cursus adipiscing lectus in suscipit. Suspendisse sed eros erat. Praesent id massa tortor. Morbi et tempor felis. Sed felis lectus, placerat vel libero laoreet, tristique gravida libero.</p>
+      <h3 id="mining-inventorytree">Inventory Tree</h3>
+      <p>A miner on the Filecoin network maintains a Merkle tree of the files being stored (referred to as the inventory), where all leaves of the tree are pieces of files (referred to as chunks).</p>
+      <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs). A length of 8192 bytes is reasonable, since a miner storing 10 TB of data will only need to use about 1% of capacity to store the tree (using a hash length of 256 bits).</p>
+      <p>In addition to the inventory tree, a file index is also maintained that specifies the order of the files that make up the inventory.</p>
 
-      <h3 id="mining-chunkhash">Chunk Hash</h3>
-      <p>Vivamus pulvinar pharetra felis at molestie. Maecenas luctus auctor justo, a sagittis sapien scelerisque vitae. Morbi quis risus eget felis tempus porta. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce lobortis, lectus a adipiscing consequat, sapien lectus varius diam, id venenatis eros quam at sem. Phasellus ultricies urna tortor, a vestibulum enim accumsan in. Suspendisse ut facilisis tortor. Duis leo libero, semper lobortis sapien sit amet, mattis lacinia mauris. Donec id dignissim mauris.</p>
+      <h3 id="mining-algorithm">Algorithm</h3>
+      <p>First, a block header is prepared (which includes information about the block, the Merkle root of the inventory tree and the hash of the inventory index, and a nonce). The miner calculates <code>H(header)</code>, where H is the hash function being used by the network.</p>
+      <p>The hash output is used to specify a Merkle branch in the inventory tree, and the chunk at the end of the branch is retrieved. Only the first <code>m</code> bits of the hash will need to be used, where <code>m</code> is the number of levels in the tree, calculated as <code>ceil(log(n))</code>.</p>
+      <p>After retrieving the specified chunk from disk, the miner calculates <code>H(hash + chunk)</code>, where <code>hash</code> is the hash that was used to specify this chunk.</p>
+      <p>This process of getting a hash, using it to select a chunk, and hashing it is repeated for a total of <code>k</code> cycles (<code>k</code> is a parameter chosen by the network).</p>
+      <p>When the final hash is calculated, it is compared to a target value based on the difficulty set by the network (similar to Bitcoin). If the hash is lower than the target, a block hash been found and the miner can broadcast the block, which now includes a verifiable zero-knowledge-proof which consists of <code>k</code> chunks and the Merkle branches proving they are a part of the inventory tree.</p>
+
+      <h3 id="mining-difficulty">Difficulty</h3>
+      <p>When mining Bitcoin, all nodes use the same network-wide difficulty. If that was the method used in Filecoin, mining speed would be based on disk access latency, rather than total amount of chunks stored. That would mean a miner storing 1 GB of data in RAM would mine as many blocks as a miner storing 10 TB of data on hard disks.</p>
+      <p>To solve this, the target value is derived from not only network difficulty, but is adjusted so that miners storing more chunks are more likely to find blocks. This can be expressed as <code>target = b / difficulty * n</code>, where <code>b</code> is a constant base target value, and <code>n</code> is the number of chunks in the miner's inventory (which can be calculated from the inventory index when verifying).</p>
 
       <h3 id="mining-attacks">Attacks</h3>
-      <p>Quisque vitae neque eu urna rhoncus varius. Pellentesque sodales libero leo, placerat vulputate erat congue sed. Maecenas suscipit nibh tortor, in fermentum lectus vehicula rhoncus. Proin rhoncus eu mi vel faucibus. Etiam arcu tellus, accumsan quis lorem eget, fermentum lacinia nibh. Nulla dictum lorem non ipsum elementum, vel tempus ipsum scelerisque.</p>
-      <p>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent eleifend rutrum lorem, id pharetra nisi iaculis in. Sed porttitor massa tortor, semper elementum enim consequat id. Proin luctus libero a lorem lacinia, non suscipit augue suscipit.</p>
-      <p>Mauris vitae sagittis nisl. Nullam orci nisl, mollis sit amet mollis ac, lobortis a sem. Curabitur hendrerit leo non elit rhoncus, vitae feugiat eros aliquam. Integer urna ante, iaculis et tortor eu, tempus faucibus turpis. Ut vel est et leo fermentum consequat. Pellentesque luctus aliquam dolor et sagittis.</p>
+      <p>Some attacks may be suggested about this mining system as described, but none that have been presented are viable.</p>
+      <h4>Inventory Spoofing</h4>
+      <p> It would be trivial for a miner to fabricate their inventory index, making it appear that they are storing many chunks (giving them a better difficulty) when they are in reality storing less than this.</p>
+      <p>However, the miner will need to reject their proof when a chunk is selected that is not being stored, as they cannot provide it. The amount of proofs to be rejected scales exponentially (<code>(n / m) ^ k</code>, where <code>n</code> is the number of actual chunks being stored and <code>m</code> is the number reported), while the difficulty advantage only scales linearly (<code>m</code>). Due to this, it will always be most profitable to use a truthful inventory index.</p>
+      <h4>Hash Grinding</h4>
+      <p>For the first hash in the mining process (the one derived from the block header), many values can be calculated quickly by using different nonces. This makes it possible for a miner who is spoofing their inventory to grind through hashes until they find one that specifies a file they are really storing. This effectively makes the rejected proof rate end up actually being <code>(n / m) ^ (k - 1)</code>. Of course, this problem is easy to mitigate by choosing a value of <code>k</code> that is 1 higher than would be sufficient.</p>
+      <h4>Fast Access Mediums</h4>
+      <p>Mining is meant to reward miners who are storing large amounts of data the most, but disk access speed also ends up being a factor. Miners could possibly mine on a small inventory using RAM, generating blocks without providing significant storage service to the network. However, this can be mitigated by enforcing a minimum inventory size and/or not counting the first X chunks into the difficulty advantage. This eliminates miners with very small inventories, which may also help lower the viability of botnet mining.</p>
     </div>
   </div>
 
