@@ -48,7 +48,7 @@
       <h3 id="mining-inventory">Inventory</h3>
       <p>A miner on the Filecoin network maintains a Merkle tree of some selected files (referred to as the inventory), where all leaves of the tree are pieces of files (referred to as chunks).</p>
       <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs). A length of 8192 bytes is reasonable, since a miner storing 10 TB of data will only need to use about 1% of capacity to store the tree (using a hash length of 256 bits).</p>
-      <p>In addition to the inventory tree, a file index is also maintained that specifies the order of the files that make up the inventory.</p>
+      <p>In addition to the inventory tree, a file index is also maintained that specifies the order of the files that make up the inventory. The chunks in the tree must exactly match the order specified in the index.</p>
 
       <h3 id="mining-algorithm">Algorithm</h3>
       <p>First, a block header is prepared (which includes information about the block, the Merkle root of the inventory tree and the hash of the inventory index, and a nonce). The miner calculates <code>H(header)</code>, where H is the hash function being used by the network.</p>
