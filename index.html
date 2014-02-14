@@ -48,7 +48,7 @@
 
       <h3 id="mining-inventory">Inventory</h3>
       <p>A miner on the Filecoin network maintains a Merkle tree of some selected files (referred to as the inventory), where all leaves of the tree are pieces of files (referred to as chunks).</p>
-      <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs). A length of 4096 bytes is reasonable, since a miner storing 10 TB of data will only need to use about 2% of capacity to store the tree (using a hash length of 256 bits).</p>
+      <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs).</p>
       <p>In addition to the inventory tree, a file index is also maintained that specifies the order of the files that make up the inventory. The chunks in the tree must exactly match the order specified in the index.</p>
 
       <h3 id="mining-algorithm">Algorithm</h3>
@@ -74,7 +74,7 @@
 
       <h3 id="mining-calculations">Calculations</h3>
       <p>A cycle length (<code>k</code>) of 4 is sufficient because it provides a large enough proof rejection margin to prevent inventory spoofing (a miner with 50% of their reported index can only keep 12.5% of attempted proofs when grinding the first hash).</p>
-      <p>A chunk size of 4096 bytes seems to be optimal. At a cycle length of 4, the proof size should be less than 20 kB. Also, it should make disk retrieval efficient because it is the standard hard disk sector size.</p>
+      <p>A chunk size of 4096 bytes seems to be optimal. At a cycle length of 4, the proof size should be less than 20 kB. For an inventory of 10 TB, the tree hashes should take up 156 GB (which is only 1.56% of the inventory, and the percentage will be smaller for smaller inventories). Also, it should make disk retrieval efficient since it is the standard hard disk sector size.</p>
     </div>
   </div>
 
