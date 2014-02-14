@@ -46,7 +46,7 @@
       <p>By the nature of this design, Filecoin is ASIC-proof (helping keep mining power decentralized), less power is consumed than CPU mining, and the resources used are not wasted since they directly provide a service.</p>
 
       <h3 id="mining-inventory">Inventory</h3>
-      <p>A miner on the Filecoin network maintains a Merkle tree of the files being stored (referred to as the inventory), where all leaves of the tree are pieces of files (referred to as chunks).</p>
+      <p>A miner on the Filecoin network maintains a Merkle tree of some selected files (referred to as the inventory), where all leaves of the tree are pieces of files (referred to as chunks).</p>
       <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs). A length of 8192 bytes is reasonable, since a miner storing 10 TB of data will only need to use about 1% of capacity to store the tree (using a hash length of 256 bits).</p>
       <p>In addition to the inventory tree, a file index is also maintained that specifies the order of the files that make up the inventory.</p>
 
