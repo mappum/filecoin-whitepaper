@@ -22,6 +22,7 @@
           <li><a href="#mining-algorithm">Algorithm</a></li>
           <li><a href="#mining-difficulty">Difficulty</a></li>
           <li><a href="#mining-attacks">Attacks</a></li>
+          <li><a href="#mining-calculations">Calculations</a></li>
         </ul>
       </li>
       <li><a href="#blockchain">Blockchain</a></li>
@@ -47,7 +48,7 @@
 
       <h3 id="mining-inventory">Inventory</h3>
       <p>A miner on the Filecoin network maintains a Merkle tree of some selected files (referred to as the inventory), where all leaves of the tree are pieces of files (referred to as chunks).</p>
-      <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs). A length of 8192 bytes is reasonable, since a miner storing 10 TB of data will only need to use about 1% of capacity to store the tree (using a hash length of 256 bits).</p>
+      <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs). A length of 4096 bytes is reasonable, since a miner storing 10 TB of data will only need to use about 2% of capacity to store the tree (using a hash length of 256 bits).</p>
       <p>In addition to the inventory tree, a file index is also maintained that specifies the order of the files that make up the inventory. The chunks in the tree must exactly match the order specified in the index.</p>
 
       <h3 id="mining-algorithm">Algorithm</h3>
@@ -70,6 +71,10 @@
       <p>For the first hash in the mining process (the one derived from the block header), many values can be calculated quickly by using different nonces. This makes it possible for a miner who is spoofing their inventory to grind through hashes until they find one that specifies a file they are really storing. This effectively makes the rejected proof rate end up actually being <code>(n / m) ^ (k - 1)</code>. Of course, this problem is easy to mitigate by choosing a value of <code>k</code> that is 1 higher than would be sufficient.</p>
       <h4>Fast Access Mediums</h4>
       <p>Mining is meant to reward miners who are storing large amounts of data the most, but disk access speed also ends up being a factor. Miners could possibly mine on a small inventory using RAM, generating blocks without providing significant storage service to the network. However, this can be mitigated by enforcing a minimum inventory size and/or not counting the first X chunks into the difficulty advantage. This eliminates miners with very small inventories, which may also help lower the viability of botnet mining.</p>
+
+      <h3 id="mining-calculations">Calculations</h3>
+      <p>A cycle length (<code>k</code>) of 4 is sufficient because it provides a large enough proof rejection margin to prevent inventory spoofing (a miner with 50% of their reported index can only keep 12.5% of attempted proofs when grinding the first hash).</p>
+      <p>A chunk size of 4096 bytes seems to be optimal. At a cycle length of 4, the proof size should be less than 20 kB. Also, it should make disk retrieval efficient because it is the standard hard disk sector size.</p>
     </div>
   </div>
 
