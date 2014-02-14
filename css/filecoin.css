@@ -30,7 +30,8 @@ body {
 }
 
 .sidebar li > ul {
-  margin-left: 32px;
+  margin-left: 20px;
+  line-height: 16px;
 }
 
 .sidebar li > ul a {
