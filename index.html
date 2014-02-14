@@ -18,7 +18,7 @@
       <li>
         <a href="#mining">Mining</a></a>
         <ul class="nav">
-          <li><a href="#mining-inventorytree">Inventory Tree</a></li>
+          <li><a href="#mining-inventory">Inventory</a></li>
           <li><a href="#mining-algorithm">Algorithm</a></li>
           <li><a href="#mining-difficulty">Difficulty</a></li>
           <li><a href="#mining-attacks">Attacks</a></li>
@@ -45,7 +45,7 @@
       <p>All current cryptocurrencies require CPU-based work when generating new blocks. Filecoin uses a similar Hashcash-like algorithm, but uses storage space rather than CPU cycles as the scarce resource. The files used in the mining process are owned by other users, so miners are not only securing the network but also providing a file storage service. The amount of storage miners provide linearly scales their expected rewards.</p>
       <p>By the nature of this design, Filecoin is ASIC-proof (helping keep mining power decentralized), less power is consumed than CPU mining, and the resources used are not wasted since they directly provide a service.</p>
 
-      <h3 id="mining-inventorytree">Inventory Tree</h3>
+      <h3 id="mining-inventory">Inventory</h3>
       <p>A miner on the Filecoin network maintains a Merkle tree of the files being stored (referred to as the inventory), where all leaves of the tree are pieces of files (referred to as chunks).</p>
       <p>All chunks are a uniform length, set by the network. A sufficiently large chunk length should be chosen in order to keep the tree from becoming too large (however, a large chunk size creates larger proofs). A length of 8192 bytes is reasonable, since a miner storing 10 TB of data will only need to use about 1% of capacity to store the tree (using a hash length of 256 bits).</p>
       <p>In addition to the inventory tree, a file index is also maintained that specifies the order of the files that make up the inventory.</p>
