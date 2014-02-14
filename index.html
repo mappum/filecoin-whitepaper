@@ -64,7 +64,7 @@
       <h3 id="mining-attacks">Attacks</h3>
       <p>Some attacks may be suggested about this mining system as described, but none that have been presented are viable.</p>
       <h4>Inventory Spoofing</h4>
-      <p> It would be trivial for a miner to fabricate their inventory index, making it appear that they are storing many chunks (giving them a better difficulty) when they are in reality storing less than this.</p>
+      <p> It would be trivial for a miner to fabricate their inventory index, making it appear that they are storing many chunks (giving them an easier target) when they are in reality storing less than this.</p>
       <p>However, the miner will need to reject their proof when a chunk is selected that is not being stored, as they cannot provide it. The amount of proofs to be rejected scales exponentially (<code>(n / m) ^ k</code>, where <code>n</code> is the number of actual chunks being stored and <code>m</code> is the number reported), while the difficulty advantage only scales linearly (<code>m</code>). Due to this, it will always be most profitable to use a truthful inventory index.</p>
       <h4>Hash Grinding</h4>
       <p>For the first hash in the mining process (the one derived from the block header), many values can be calculated quickly by using different nonces. This makes it possible for a miner who is spoofing their inventory to grind through hashes until they find one that specifies a file they are really storing. This effectively makes the rejected proof rate end up actually being <code>(n / m) ^ (k - 1)</code>. Of course, this problem is easy to mitigate by choosing a value of <code>k</code> that is 1 higher than would be sufficient.</p>
